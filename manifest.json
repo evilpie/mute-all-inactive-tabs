@@ -1,0 +1,16 @@
+{
+    "applications": {
+      "gecko": {
+        "id": "mute-all-inactive-tabs@evilpie.tomschuster.name",
+        "strict_min_version": "47.0"
+      }
+    },
+
+    "manifest_version": 2,
+    "name": "Mute all inactive tabs",
+    "version": "0.1",
+
+    "background": {
+      "scripts": ["background.js"]
+    }
+}
