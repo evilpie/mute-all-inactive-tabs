@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function setMuted(id, muted) {
-    chrome.tabs.update(id, {muted});
+function setMuted(tab, muted) {
+    if (!tab.mutedInfo.muted && tab.mutedInfo.reason === "user") {
+        // Never mute a tab that was manually unmuted.
+        return;
+    }
+
+    chrome.tabs.update(tab.id, {muted});
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -11,17 +16,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         return;
 
     if (changeInfo.audible)
-        setMuted(tabId, true);
+        setMuted(tab, true);
 })
 
 function updateInactive() {
     chrome.tabs.query({active: false, audible: true}, tabs => {
-        tabs.forEach(tab => setMuted(tab.id, true));
+        tabs.forEach(tab => setMuted(tab, true));
     });
 }
 
 chrome.tabs.onActivated.addListener(({tabId}) => {
-    setMuted(tabId, false);
+    chrome.tabs.get(tabId, tab => {
+        setMuted(tab, false);
+    });
+
     updateInactive();
 })
 
