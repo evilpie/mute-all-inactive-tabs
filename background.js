@@ -2,9 +2,40 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var activeState = true;
+
+function updateBrowserAction() {
+    browser.browserAction.setIcon({
+        path: activeState ? {
+            64: "icons/icon-64.png",
+        } : {
+            64: "icons/icon-64-inactive.png",
+        }
+    });
+    browser.browserAction.setTitle({
+        // Screen readers can see the title
+        title: `Mute all Inactive Tabs (${activeState ? 'active' : 'inactive'})`
+    });
+    browser.browserAction.setBadgeText(
+        activeState ? 'Active' : 'Inactive'
+    );
+}
+
+function toggleActiveState() {
+    activeState = !activeState;
+    updateInactive();
+    updateBrowserAction();
+}
+
+browser.browserAction.onClicked.addListener(toggleActiveState);
+
 function setMuted(tab, muted) {
     if (!tab.mutedInfo.muted && tab.mutedInfo.reason === "user") {
         // Never mute a tab that was manually unmuted.
+        return;
+    }
+
+    if (!activeState) {
         return;
     }
 
@@ -34,3 +65,4 @@ chrome.tabs.onActivated.addListener(({tabId}) => {
 })
 
 updateInactive();
+updateBrowserAction();
