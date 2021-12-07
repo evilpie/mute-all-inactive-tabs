@@ -21,13 +21,11 @@ function updateBrowserAction() {
     );
 }
 
-function toggleActiveState() {
+browser.browserAction.onClicked.addListener(_ => {
     activeState = !activeState;
     updateInactive();
     updateBrowserAction();
-}
-
-browser.browserAction.onClicked.addListener(toggleActiveState);
+});
 
 function setMuted(tab, muted) {
     if (!tab.mutedInfo.muted && tab.mutedInfo.reason === "user") {
